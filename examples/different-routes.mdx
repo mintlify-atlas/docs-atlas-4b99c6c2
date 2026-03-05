@@ -19,18 +19,21 @@ The Romania map includes these cities:
 
 ## Example Routes
 
-Here are several examples demonstrating different route queries:
+Here are several examples demonstrating different route queries. To try these, modify the script `astar_shortest_path_romania.py` at line 82 to change the start and goal cities.
 
 ### Oradea to Bucharest
 
+Modify line 82 in the script:
+
 ```python
-from astar_shortest_path_romania import romania_map, heuristics, a_star_search
+# Change this line in astar_shortest_path_romania.py:
+optimal_path, total_cost = a_star_search(romania_map, 'Oradea', 'Bucharest', heuristics)
+```
 
-# Find path from Oradea to Bucharest
-path, distance = a_star_search(romania_map, 'Oradea', 'Bucharest', heuristics)
+Then run:
 
-print(f"Route: {' -> '.join(path)}")
-print(f"Distance: {distance} km")
+```bash
+python astar_shortest_path_romania.py
 ```
 
 **Expected Output:**
@@ -42,11 +45,8 @@ Distance: 429 km
 ### Timisoara to Iasi
 
 ```python
-# Find path from Timisoara to Iasi
-path, distance = a_star_search(romania_map, 'Timisoara', 'Iasi', heuristics)
-
-print(f"Route: {' -> '.join(path)}")
-print(f"Distance: {distance} km")
+# Modify line 82 in astar_shortest_path_romania.py:
+optimal_path, total_cost = a_star_search(romania_map, 'Timisoara', 'Iasi', heuristics)
 ```
 
 **Expected Output:**
@@ -62,11 +62,8 @@ Since the heuristics are optimized for paths **to Bucharest**, routes to other d
 ### Craiova to Neamt
 
 ```python
-# Find path from Craiova to Neamt
-path, distance = a_star_search(romania_map, 'Craiova', 'Neamt', heuristics)
-
-print(f"Route: {' -> '.join(path)}")
-print(f"Distance: {distance} km")
+# Modify line 82 in astar_shortest_path_romania.py:
+optimal_path, total_cost = a_star_search(romania_map, 'Craiova', 'Neamt', heuristics)
 ```
 
 **Expected Output:**
@@ -78,11 +75,8 @@ Distance: 604 km
 ### Eforie to Arad
 
 ```python
-# Find path from Eforie (coast) to Arad (west)
-path, distance = a_star_search(romania_map, 'Eforie', 'Arad', heuristics)
-
-print(f"Route: {' -> '.join(path)}")
-print(f"Distance: {distance} km")
+# Modify line 82 in astar_shortest_path_romania.py:
+optimal_path, total_cost = a_star_search(romania_map, 'Eforie', 'Arad', heuristics)
 ```
 
 **Expected Output:**
@@ -93,10 +87,10 @@ Distance: 687 km
 
 ## Batch Route Finding
 
-You can find multiple routes programmatically:
+You can modify the script to find multiple routes by replacing the execution code (lines 82-117) with a loop:
 
 ```python
-from astar_shortest_path_romania import romania_map, heuristics, a_star_search
+# Replace lines 82-117 in astar_shortest_path_romania.py with:
 
 # Define route queries
 routes = [
@@ -127,21 +121,19 @@ This is useful for comparing multiple route options or analyzing the entire road
 
 ## Reverse Routes
 
-Since the Romania map is bidirectional, you can find routes in both directions:
+Since the Romania map is bidirectional, you can find routes in both directions with identical distances:
 
 <CodeGroup>
 
-```python Forward Route
-# Bucharest to Arad
-path, distance = a_star_search(romania_map, 'Bucharest', 'Arad', heuristics)
-print(f"Bucharest to Arad: {distance} km")
+```python Bucharest to Arad
+# Modify line 82 to search from Bucharest to Arad:
+optimal_path, total_cost = a_star_search(romania_map, 'Bucharest', 'Arad', heuristics)
 # Output: 418 km (same as Arad to Bucharest)
 ```
 
-```python Return Route
-# Arad to Bucharest
-path, distance = a_star_search(romania_map, 'Arad', 'Bucharest', heuristics)
-print(f"Arad to Bucharest: {distance} km")
+```python Arad to Bucharest
+# Modify line 82 to search from Arad to Bucharest:
+optimal_path, total_cost = a_star_search(romania_map, 'Arad', 'Bucharest', heuristics)
 # Output: 418 km (same distance, reversed path)
 ```
 
@@ -153,45 +145,17 @@ The distance will be identical in both directions, but the path list will be rev
 
 ## Handling Short Distances
 
-Some cities are directly connected with short distances:
+Some cities are directly connected with short distances. For example:
 
-```python
-# Short neighboring routes
-short_routes = [
-    ('Bucharest', 'Giurgiu'),    # 90 km - direct connection
-    ('Bucharest', 'Urziceni'),   # 85 km - direct connection
-    ('Iasi', 'Neamt'),           # 87 km - direct connection
-]
+- **Bucharest to Giurgiu**: 90 km (direct connection)
+- **Bucharest to Urziceni**: 85 km (direct connection)  
+- **Iasi to Neamt**: 87 km (direct connection)
 
-for start, goal in short_routes:
-    path, distance = a_star_search(romania_map, start, goal, heuristics)
-    print(f"{start} to {goal}: {' -> '.join(path)} ({distance} km)")
-```
-
-**Output:**
-```
-Bucharest to Giurgiu: Bucharest -> Giurgiu (90 km)
-Bucharest to Urziceni: Bucharest -> Urziceni (85 km)
-Iasi to Neamt: Iasi -> Neamt (87 km)
-```
+These short routes will be found instantly by the A* algorithm since they're direct connections.
 
 ## Visualizing Different Routes
 
-You can visualize any route using the `draw_graph` function:
-
-```python
-from astar_shortest_path_romania import romania_map, heuristics, a_star_search, draw_graph
-
-# Find and visualize route from Timisoara to Bucharest
-path, distance = a_star_search(romania_map, 'Timisoara', 'Bucharest', heuristics)
-
-print(f"Route from Timisoara to Bucharest:")
-print(f"  Path: {' -> '.join(path)}")
-print(f"  Distance: {distance} km")
-
-# Show the graph with the route highlighted in red
-draw_graph(romania_map, path)
-```
+The script automatically visualizes the route when you run it. Simply change the start and goal cities at line 82, and the visualization will show your selected route highlighted in red.
 
 <Tip>
 The visualization helps you understand the spatial relationships between cities and why A* chose a particular route.
@@ -199,44 +163,22 @@ The visualization helps you understand the spatial relationships between cities 
 
 ## No Path Scenarios
 
-If two cities aren't connected (though all cities in Romania map are connected), the function handles it gracefully:
-
-```python
-path, distance = a_star_search(romania_map, 'CityA', 'CityB', heuristics)
-
-if path is None:
-    print("No path exists between these cities")
-    print(f"Distance: {distance}")  # Will be inf (infinity)
-else:
-    print(f"Path found: {' -> '.join(path)}")
-```
+The A* algorithm handles disconnected cities gracefully. If you search for a city that doesn't exist or isn't connected, the function returns `(None, float('inf'))`. All 20 cities in the Romania map are connected, so you'll always find a valid path between any two cities in the map.
 
 ## Common Route Patterns
 
 ### West to East Routes
-```python
-# Routes from western cities to eastern cities often go through Bucharest
-west_to_east = [
-    ('Timisoara', 'Iasi'),
-    ('Arad', 'Vaslui'),
-    ('Oradea', 'Hirsova')
-]
-```
+Routes from western cities to eastern cities often go through Bucharest as a central hub:
+- Timisoara → Bucharest → Iasi
+- Arad → Bucharest → Vaslui
+- Oradea → Bucharest → Hirsova
 
 ### Coastal Routes
-```python
-# Routes involving coastal cities (Eforie, Hirsova)
-coastal = [
-    ('Bucharest', 'Eforie'),
-    ('Hirsova', 'Arad')
-]
-```
+Routes involving coastal cities (Eforie, Hirsova) typically connect through Urziceni and Bucharest:
+- Bucharest → Urziceni → Hirsova → Eforie
+- Hirsova → Urziceni → Bucharest → Pitesti → ... → Arad
 
 ### Northern Routes
-```python
-# Routes in the northern region
-northern = [
-    ('Oradea', 'Neamt'),
-    ('Zerind', 'Iasi')
-]
-```
+Routes in the northern region may avoid Bucharest:
+- Oradea → Zerind → Arad or Oradea → Sibiu (depending on destination)
+- Iasi → Vaslui → Urziceni (for eastern connections)

@@ -97,9 +97,11 @@ campus_heuristics = {
 ```
 </Step>
 
-<Step title="Use the A* algorithm">
+<Step title="Copy the A* function and use it">
+Copy the `a_star_search` function from `astar_shortest_path_romania.py` (lines 39-79) into your script, then use it:
+
 ```python
-from astar_shortest_path_romania import a_star_search
+# After copying the a_star_search function definition
 
 # Find the shortest path from Library to Dorms
 path, distance = a_star_search(campus_map, 'Library', 'Dorms', campus_heuristics)
@@ -168,6 +170,7 @@ time_heuristics = {
     'Store': 0  # Our destination
 }
 
+# Copy the a_star_search function first, then:
 path, time = a_star_search(time_graph, 'Home', 'Store', time_heuristics)
 print(f"Fastest route: {' -> '.join(path)} ({time} minutes)")
 ```

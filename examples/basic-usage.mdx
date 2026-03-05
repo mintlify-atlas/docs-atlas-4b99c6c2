@@ -7,26 +7,35 @@ description: "Learn how to use the A* algorithm to find the shortest path betwee
 
 The most basic use case is finding the shortest path from Arad to Bucharest using the pre-configured Romania map and heuristics.
 
-## Complete Example
+## Running the Script
 
-Here's a complete example that demonstrates how to use the A* pathfinding algorithm:
+The simplest way to use the pathfinder is to run the provided script directly:
+
+```bash
+python astar_shortest_path_romania.py
+```
+
+This will find the optimal path from Arad to Bucharest and display both the terminal output and a visualization window.
+
+## Understanding the Script
+
+The script `astar_shortest_path_romania.py` contains all the necessary components. Here's what happens when you run it:
 
 ```python
-import heapq
-import networkx as nx
-import matplotlib.pyplot as plt
-from astar_shortest_path_romania import romania_map, heuristics, a_star_search, draw_graph
-
-# Find the optimal path from Arad to Bucharest
+# The script calls a_star_search with the Romania map
 optimal_path, total_cost = a_star_search(romania_map, 'Arad', 'Bucharest', heuristics)
 
-# Print the results
-print("Optimal path from Arad to Bucharest:", " -> ".join(optimal_path))
-print("Total distance:", total_cost, "km")
+# Prints the results
+print("Ruta óptima de Fagaras a Bucarest:", " -> ".join(optimal_path))
+print("Costo total de la ruta:", total_cost)
 
-# Visualize the graph with the optimal path highlighted
+# Visualizes the graph with the optimal path highlighted
 draw_graph(romania_map, optimal_path)
 ```
+
+<Note>
+The print statement in the source code says "Fagaras to Bucharest" but actually searches from Arad to Bucharest - this is a minor typo in the output message.
+</Note>
 
 ## Expected Output
 
@@ -45,30 +54,20 @@ The algorithm finds the path **Arad → Sibiu → Rimnicu Vilcea → Pitesti →
 
 <Steps>
 
-<Step title="Import the necessary components">
-The algorithm requires the graph structure (`romania_map`), heuristic estimates (`heuristics`), and the search function (`a_star_search`).
+<Step title="Graph structure">
+The `romania_map` dictionary contains all cities and their connections with distances.
 </Step>
 
-<Step title="Call the A* search function">
-Pass the graph, start city, goal city, and heuristics to `a_star_search()`. It returns a tuple of `(path, cost)`.
-
-```python
-optimal_path, total_cost = a_star_search(romania_map, 'Arad', 'Bucharest', heuristics)
-```
+<Step title="Heuristic values">
+The `heuristics` dictionary contains straight-line distance estimates from each city to Bucharest.
 </Step>
 
-<Step title="Use the results">
-The function returns:
-- `optimal_path`: A list of city names representing the route
-- `total_cost`: The total distance in kilometers
+<Step title="A* search function">
+The `a_star_search()` function takes the graph, start city, goal city, and heuristics, returning a tuple of `(path, cost)`.
 </Step>
 
-<Step title="Visualize the path (optional)">
-Use the `draw_graph()` function to see a visual representation of the Romania map with your path highlighted in red.
-
-```python
-draw_graph(romania_map, optimal_path)
-```
+<Step title="Visualization">
+The `draw_graph()` function displays the Romania map with the optimal path highlighted in red.
 </Step>
 
 </Steps>
