@@ -1,0 +1,214 @@
+---
+title: "Data Structures"
+description: "Graph and heuristic data structures used in the A* pathfinding algorithm"
+---
+
+## Overview
+
+The A* algorithm implementation uses two primary data structures: the graph representation and the heuristic values dictionary. Understanding these structures is essential for implementing custom pathfinding scenarios.
+
+## Graph Structure (romania_map)
+
+### Format
+
+The graph is represented as a Python dictionary where:
+- **Keys**: Node names (strings)
+- **Values**: Lists of tuples, each containing `(neighbor_name, distance)`
+
+### Type Definition
+
+```python
+dict[str, list[tuple[str, int]]]
+```
+
+### Complete Romania Map Data
+
+```python
+romania_map = {
+    'Arad': [('Zerind', 75), ('Sibiu', 140), ('Timisoara', 118)],
+    'Zerind': [('Arad', 75), ('Oradea', 71)],
+    'Oradea': [('Zerind', 71), ('Sibiu', 151)],
+    'Sibiu': [('Arad', 140), ('Oradea', 151), ('Fagaras', 99), ('Rimnicu Vilcea', 80)],
+    'Timisoara': [('Arad', 118), ('Lugoj', 111)],
+    'Lugoj': [('Timisoara', 111), ('Mehadia', 70)],
+    'Mehadia': [('Lugoj', 70), ('Drobeta', 75)],
+    'Drobeta': [('Mehadia', 75), ('Craiova', 120)],
+    'Craiova': [('Drobeta', 120), ('Rimnicu Vilcea', 146), ('Pitesti', 138)],
+    'Rimnicu Vilcea': [('Sibiu', 80), ('Craiova', 146), ('Pitesti', 97)],
+    'Fagaras': [('Sibiu', 99), ('Bucharest', 211)],
+    'Pitesti': [('Rimnicu Vilcea', 97), ('Craiova', 138), ('Bucharest', 101)],
+    'Bucharest': [('Fagaras', 211), ('Pitesti', 101), ('Giurgiu', 90), ('Urziceni', 85)],
+    'Giurgiu': [('Bucharest', 90)],
+    'Urziceni': [('Bucharest', 85), ('Hirsova', 98), ('Vaslui', 142)],
+    'Hirsova': [('Urziceni', 98), ('Eforie', 86)],
+    'Eforie': [('Hirsova', 86)],
+    'Vaslui': [('Urziceni', 142), ('Iasi', 92)],
+    'Iasi': [('Vaslui', 92), ('Neamt', 87)],
+    'Neamt': [('Iasi', 87)],
+}
+```
+
+### Properties
+
+- **Total nodes**: 20 cities
+- **Bidirectional edges**: Each connection is defined in both directions
+- **Weighted edges**: Each edge has an associated distance (cost)
+- **Connected graph**: All nodes are reachable from any starting point
+
+### Creating Custom Graphs
+
+You can create your own graph structure following the same format:
+
+```python
+# Simple city network example
+my_graph = {
+    'CityA': [('CityB', 10), ('CityC', 15)],
+    'CityB': [('CityA', 10), ('CityD', 12)],
+    'CityC': [('CityA', 15), ('CityD', 10)],
+    'CityD': [('CityB', 12), ('CityC', 10)]
+}
+```
+
+**Important considerations:**
+- Ensure bidirectional edges (if A connects to B, B should connect to A)
+- Use consistent distance values for bidirectional edges
+- All nodes referenced as neighbors must also exist as keys
+
+## Heuristic Values (heuristics)
+
+### Format
+
+The heuristics dictionary maps node names to estimated distances to the goal. For A* to find optimal paths, the heuristic must be **admissible** (never overestimate the actual cost).
+
+### Type Definition
+
+```python
+dict[str, int]
+```
+
+### Complete Heuristic Data
+
+These values represent straight-line distances to Bucharest:
+
+```python
+heuristics = {
+    'Arad': 366,
+    'Zerind': 374,
+    'Oradea': 380,
+    'Sibiu': 253,
+    'Timisoara': 329,
+    'Lugoj': 244,
+    'Mehadia': 241,
+    'Drobeta': 242,
+    'Craiova': 160,
+    'Rimnicu Vilcea': 193,
+    'Fagaras': 176,
+    'Pitesti': 100,
+    'Bucharest': 0,
+    'Giurgiu': 77,
+    'Urziceni': 80,
+    'Hirsova': 151,
+    'Eforie': 161,
+    'Vaslui': 199,
+    'Iasi': 226,
+    'Neamt': 234
+}
+```
+
+### Properties
+
+- **Goal node**: Always has heuristic value of 0 (Bucharest in this case)
+- **Admissible**: Values never overestimate actual shortest path distance
+- **Consistent**: Satisfies triangle inequality h(n) ≤ cost(n,n') + h(n')
+
+### Creating Custom Heuristics
+
+When creating heuristics for your own graphs:
+
+```python
+# Example: Manhattan distance heuristic for grid-based pathfinding
+def calculate_heuristic(node, goal):
+    # Straight-line or estimated distance to goal
+    return estimated_distance
+
+# Create heuristics dictionary
+my_heuristics = {
+    'CityA': 50,  # 50 km to goal
+    'CityB': 30,  # 30 km to goal
+    'CityC': 40,  # 40 km to goal
+    'CityD': 0    # This is the goal
+}
+```
+
+**Heuristic requirements:**
+- **h(goal) = 0**: The goal node must have a heuristic of 0
+- **Admissible**: Never overestimate the actual cost to reach the goal
+- **Non-negative**: All heuristic values must be ≥ 0
+- **Complete**: Every node in the graph must have a heuristic value
+
+## Usage Example with Custom Data
+
+```python
+import heapq
+
+# Define custom graph
+custom_graph = {
+    'Start': [('A', 5), ('B', 10)],
+    'A': [('Start', 5), ('Goal', 15)],
+    'B': [('Start', 10), ('C', 5)],
+    'C': [('B', 5), ('Goal', 8)],
+    'Goal': [('A', 15), ('C', 8)]
+}
+
+# Define heuristics (straight-line distance to Goal)
+custom_heuristics = {
+    'Start': 20,
+    'A': 15,
+    'B': 12,
+    'C': 8,
+    'Goal': 0
+}
+
+# Run A* search
+path, cost = a_star_search(custom_graph, 'Start', 'Goal', custom_heuristics)
+
+print(f"Optimal path: {' -> '.join(path)}")
+print(f"Total cost: {cost}")
+```
+
+**Output:**
+```
+Optimal path: Start -> A -> Goal
+Total cost: 20
+```
+
+## Data Validation
+
+Before running A* search, ensure:
+
+1. **Graph completeness**: All neighbor references exist as graph keys
+2. **Bidirectional consistency**: Edge weights match in both directions
+3. **Heuristic coverage**: Every graph node has a heuristic value
+4. **Goal heuristic**: The goal node has h(goal) = 0
+5. **Valid nodes**: Start and goal nodes exist in both graph and heuristics
+
+```python
+def validate_data(graph, heuristics, start, goal):
+    # Check start and goal exist
+    assert start in graph, f"Start node '{start}' not in graph"
+    assert goal in graph, f"Goal node '{goal}' not in graph"
+    
+    # Check all graph nodes have heuristics
+    for node in graph:
+        assert node in heuristics, f"Node '{node}' missing heuristic value"
+    
+    # Check goal heuristic is 0
+    assert heuristics[goal] == 0, f"Goal heuristic must be 0, got {heuristics[goal]}"
+    
+    # Check neighbor references
+    for node, neighbors in graph.items():
+        for neighbor, _ in neighbors:
+            assert neighbor in graph, f"Neighbor '{neighbor}' not in graph"
+    
+    print("Data validation passed!")
+```

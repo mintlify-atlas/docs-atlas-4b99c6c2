@@ -1,0 +1,161 @@
+---
+title: 'A* Algorithm'
+description: 'Understanding the A* pathfinding algorithm and its implementation'
+---
+
+## Overview
+
+The A* (A-star) algorithm is a best-first search algorithm that finds the optimal path between two nodes in a weighted graph. It combines the benefits of Dijkstra's algorithm (guaranteeing the shortest path) with the efficiency of greedy best-first search (using heuristics to guide the search).
+
+## Core Concept: The Evaluation Function
+
+A* uses an evaluation function to determine which node to explore next:
+
+```
+f(n) = g(n) + h(n)
+```
+
+Where:
+- **f(n)**: Total estimated cost of the path through node n
+- **g(n)**: Actual cost from the start node to node n
+- **h(n)**: Heuristic estimate of cost from node n to the goal
+
+<Info>
+The algorithm always expands the node with the lowest f(n) value, ensuring it explores the most promising paths first.
+</Info>
+
+## Key Data Structures
+
+The implementation uses three primary data structures (astar_shortest_path_romania.py:40-48):
+
+### 1. Open List (Priority Queue)
+
+```python
+open_list = []
+heapq.heappush(open_list, (0, start))
+```
+
+The open list is implemented as a min-heap priority queue that stores nodes to be explored, ordered by their f-cost. The `heapq` module ensures the node with the lowest cost is always retrieved efficiently.
+
+### 2. G-Costs Dictionary
+
+```python
+g_costs = {start: 0}
+```
+
+This dictionary tracks the actual cost (g-value) from the start node to each visited node. It's updated whenever a shorter path to a node is discovered.
+
+### 3. Came-From Dictionary
+
+```python
+came_from = {start: None}
+```
+
+This dictionary maintains the parent relationship between nodes, allowing path reconstruction once the goal is reached. Each key is a node, and its value is the node from which it was reached.
+
+## Algorithm Workflow
+
+### Step 1: Initialization
+
+The algorithm begins by initializing the data structures with the start node:
+
+```python
+def a_star_search(graph, start, goal, heuristics):
+    open_list = []
+    heapq.heappush(open_list, (0, start))
+    g_costs = {start: 0}
+    came_from = {start: None}
+```
+
+### Step 2: Main Loop
+
+The algorithm continues until the open list is empty or the goal is found (astar_shortest_path_romania.py:50-76):
+
+```python
+while open_list:
+    # Extract the node with the lowest f-cost
+    current_f_cost, current_node = heapq.heappop(open_list)
+    
+    # Goal check
+    if current_node == goal:
+        # Reconstruct and return the path
+        path = []
+        while current_node:
+            path.append(current_node)
+            current_node = came_from[current_node]
+        return path[::-1], g_costs[goal]
+```
+
+<Note>
+The path is built backwards from goal to start, then reversed using `path[::-1]` to get the correct order.
+</Note>
+
+### Step 3: Neighbor Exploration
+
+For each neighbor of the current node, the algorithm calculates costs and updates data structures:
+
+```python
+for neighbor, distance in graph[current_node]:
+    # Calculate tentative g-cost
+    tentative_g_cost = g_costs[current_node] + distance
+    
+    # Check if this path is better
+    if neighbor not in g_costs or tentative_g_cost < g_costs[neighbor]:
+        # Update g-cost
+        g_costs[neighbor] = tentative_g_cost
+        
+        # Calculate f-cost using heuristic
+        f_cost = tentative_g_cost + heuristics[neighbor]
+        
+        # Add to open list
+        heapq.heappush(open_list, (f_cost, neighbor))
+        
+        # Record parent node
+        came_from[neighbor] = current_node
+```
+
+### Step 4: Path Reconstruction
+
+Once the goal is reached, the path is reconstructed by following the `came_from` pointers:
+
+```python
+path = []
+while current_node:
+    path.append(current_node)
+    current_node = came_from[current_node]
+return path[::-1], g_costs[goal]
+```
+
+## Algorithm Execution Example
+
+For the route from Arad to Bucharest:
+
+1. **Start**: Initialize with Arad (g=0, h=366, f=366)
+2. **Expand Arad**: Explore neighbors (Zerind, Sibiu, Timisoara)
+3. **Select Sibiu**: Lowest f-cost (g=140, h=253, f=393)
+4. **Continue**: Explore Rimnicu Vilcea, then Pitesti
+5. **Reach Bucharest**: Total cost = 418 km
+
+<Accordion title="Why does A* guarantee optimality?">
+A* guarantees finding the optimal path when the heuristic is **admissible** (never overestimates the actual cost). This is because:
+
+1. The algorithm explores nodes in order of increasing f-cost
+2. An admissible heuristic ensures that a suboptimal goal node will always have a higher f-cost than the optimal path
+3. Therefore, the optimal path will always be explored before any suboptimal path is fully expanded
+</Accordion>
+
+## Time and Space Complexity
+
+- **Time Complexity**: O(b^d) in the worst case, where b is the branching factor and d is the depth of the solution
+- **Space Complexity**: O(b^d) for storing all nodes in the open list
+- **With good heuristics**: Performance improves significantly, often approaching O(d) in practice
+
+## Implementation Reference
+
+The complete A* implementation can be found in `astar_shortest_path_romania.py:39-79`. The algorithm is executed with:
+
+```python
+optimal_path, total_cost = a_star_search(romania_map, 'Arad', 'Bucharest', heuristics)
+```
+
+This produces the optimal route: **Arad → Sibiu → Rimnicu Vilcea → Pitesti → Bucharest** with a total distance of **418 km**.

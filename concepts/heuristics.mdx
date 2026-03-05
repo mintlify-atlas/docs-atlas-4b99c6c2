@@ -1,0 +1,181 @@
+---
+title: 'Heuristic Functions'
+description: 'Understanding heuristics in A* pathfinding and their role in optimal search'
+---
+
+## What is a Heuristic?
+
+A heuristic is an estimate of the cost from a given node to the goal node. In the context of the A* algorithm, the heuristic function h(n) guides the search by indicating which nodes are likely closer to the goal.
+
+<Info>
+Think of heuristics as an "informed guess" that helps the algorithm explore promising paths first, significantly improving search efficiency.
+</Info>
+
+## Why Heuristics Matter
+
+Without heuristics, A* degrades to Dijkstra's algorithm, exploring nodes uniformly in all directions. With a good heuristic:
+
+- **Reduces nodes explored**: Focuses search toward the goal
+- **Improves performance**: Can reduce time complexity from O(b^d) to nearly O(d)
+- **Maintains optimality**: When admissible, still guarantees the shortest path
+- **Provides efficiency**: Makes pathfinding practical for large graphs
+
+## Straight-Line Distance Heuristic
+
+This implementation uses **straight-line distance** (Euclidean distance) from each city to Bucharest as the heuristic. This represents the theoretical minimum distance if you could travel in a straight line, ignoring roads.
+
+### Heuristic Values
+
+The complete heuristics dictionary from the source code (astar_shortest_path_romania.py:31-36):
+
+```python
+heuristics = {
+    'Arad': 366, 'Zerind': 374, 'Oradea': 380, 'Sibiu': 253, 'Timisoara': 329,
+    'Lugoj': 244, 'Mehadia': 241, 'Drobeta': 242, 'Craiova': 160, 'Rimnicu Vilcea': 193,
+    'Fagaras': 176, 'Pitesti': 100, 'Bucharest': 0, 'Giurgiu': 77, 'Urziceni': 80,
+    'Hirsova': 151, 'Eforie': 161, 'Vaslui': 199, 'Iasi': 226, 'Neamt': 234
+}
+```
+
+### Key Observations
+
+- **Bucharest**: h = 0 (goal node, no distance to itself)
+- **Nearby cities**: Pitesti (100), Giurgiu (77), Urziceni (80) have low values
+- **Distant cities**: Arad (366), Zerind (374), Oradea (380) have high values
+- **Gradient effect**: Values generally decrease as cities get closer to Bucharest
+
+## How Heuristics are Used
+
+In the A* algorithm, the heuristic is combined with the actual cost to calculate the f-cost (astar_shortest_path_romania.py:72):
+
+```python
+# Calculate f-cost (g + h) using the heuristic
+f_cost = tentative_g_cost + heuristics[neighbor]
+heapq.heappush(open_list, (f_cost, neighbor))
+```
+
+### Example Calculation
+
+When exploring from Arad to Sibiu:
+
+```
+g(Sibiu) = 140 (actual road distance from Arad)
+h(Sibiu) = 253 (straight-line distance to Bucharest)
+f(Sibiu) = 140 + 253 = 393
+```
+
+This f-cost of 393 is used to prioritize Sibiu in the search queue.
+
+## Admissibility: The Key Property
+
+An **admissible heuristic** never overestimates the actual cost to reach the goal. This property is crucial for A* to guarantee finding the optimal path.
+
+<Note>
+Straight-line distance is always admissible because the shortest path between two points is a straight line. Any actual road path must be at least as long as the straight-line distance.
+</Note>
+
+### Why Admissibility Guarantees Optimality
+
+1. If h(n) ≤ actual cost to goal, then f(n) ≤ actual total cost through n
+2. The optimal path will have the lowest actual total cost
+3. Therefore, A* will explore the optimal path before accepting any suboptimal path
+4. The first path found to the goal is guaranteed to be optimal
+
+### Non-Admissible Heuristics
+
+If a heuristic overestimates (h(n) > actual cost), the algorithm:
+- May still find a path
+- May run faster (more aggressive pruning)
+- **Will NOT guarantee** the optimal solution
+- Could miss the shortest path entirely
+
+## Heuristic Examples from the Map
+
+### Short Heuristic Values
+
+| City | Heuristic (h) | Meaning |
+|------|--------------|----------|
+| Bucharest | 0 | At the goal |
+| Giurgiu | 77 | Very close to Bucharest |
+| Urziceni | 80 | Very close to Bucharest |
+| Pitesti | 100 | Close to Bucharest |
+
+### Medium Heuristic Values
+
+| City | Heuristic (h) | Meaning |
+|------|--------------|----------|
+| Craiova | 160 | Moderate distance |
+| Fagaras | 176 | Moderate distance |
+| Rimnicu Vilcea | 193 | Moderate distance |
+| Vaslui | 199 | Moderate distance |
+
+### Long Heuristic Values
+
+| City | Heuristic (h) | Meaning |
+|------|--------------|----------|
+| Sibiu | 253 | Far from Bucharest |
+| Timisoara | 329 | Very far from Bucharest |
+| Arad | 366 | Very far from Bucharest |
+| Zerind | 374 | Very far from Bucharest |
+| Oradea | 380 | Furthest from Bucharest |
+
+## Consistency (Monotonicity)
+
+A stronger property than admissibility is **consistency**: for every node n and successor n':
+
+```
+h(n) ≤ cost(n, n') + h(n')
+```
+
+This means the heuristic satisfies the triangle inequality. Consistent heuristics are always admissible and ensure:
+- Each node is expanded at most once
+- No need to reopen closed nodes
+- More efficient search
+
+<Accordion title="Is the straight-line distance heuristic consistent?">
+Yes! Straight-line distance is consistent because it satisfies the triangle inequality:
+
+The straight-line distance from A to C is always ≤ the sum of straight-line distances from A to B and B to C.
+
+This geometric property ensures that our heuristic is both admissible and consistent, making the A* search highly efficient.
+</Accordion>
+
+## Practical Impact
+
+### Search Efficiency Example
+
+For Arad → Bucharest:
+
+**Without heuristic (Dijkstra's algorithm)**:
+- Explores nodes uniformly
+- Might explore Oradea, Neamt, Iasi (far from goal)
+- More nodes expanded
+
+**With heuristic (A* algorithm)**:
+- Prioritizes nodes toward Bucharest
+- Focuses on Sibiu → Rimnicu Vilcea → Pitesti route
+- Fewer nodes expanded
+- Finds optimal path efficiently
+
+### Heuristic Quality
+
+A good heuristic should be:
+
+1. **Admissible**: Never overestimates (ensures optimality)
+2. **Informative**: Provides meaningful guidance (closer estimates are better)
+3. **Efficient to compute**: Fast calculation (overhead shouldn't exceed benefits)
+4. **Consistent**: Satisfies triangle inequality (improves efficiency)
+
+<Info>
+The straight-line distance heuristic used in this implementation satisfies all four criteria, making it an excellent choice for geographic pathfinding.
+</Info>
+
+## Implementation Reference
+
+The heuristic values are defined in `astar_shortest_path_romania.py:31-36` and used in the f-cost calculation at line 72:
+
+```python
+f_cost = tentative_g_cost + heuristics[neighbor]
+```
+
+These heuristic values guide the search to find the optimal 418 km route from Arad to Bucharest efficiently.

@@ -1,0 +1,159 @@
+---
+title: "Code Walkthrough"
+description: "Step-by-step guide through the A* algorithm implementation"
+---
+
+## Overview
+
+This page walks through the core `a_star_search` function implementation, explaining each component and algorithmic decision. The function is located in `astar_shortest_path_romania.py:39`.
+
+## Function Signature
+
+```python
+def a_star_search(graph, start, goal, heuristics):
+```
+
+The function accepts four parameters:
+- `graph`: Dictionary representing the Romania map with cities and their connections
+- `start`: Starting city (e.g., 'Arad')
+- `goal`: Destination city (e.g., 'Bucharest')
+- `heuristics`: Dictionary of estimated straight-line distances to the goal
+
+## Algorithm Steps
+
+<Steps>
+
+### Initialization
+
+The algorithm begins by setting up the necessary data structures:
+
+```python {3,6,8}
+# Create an open list (priority queue)
+open_list = []
+heapq.heappush(open_list, (0, start))
+
+# Dictionary to store g costs (actual cost from start)
+g_costs = {start: 0}
+# Dictionary to track the path (for reconstruction)
+came_from = {start: None}
+```
+
+**Key data structures:**
+- `open_list`: Priority queue implemented with `heapq` to always process the node with lowest f-cost
+- `g_costs`: Tracks the actual shortest distance from start to each node discovered
+- `came_from`: Records parent nodes to reconstruct the optimal path
+
+<Note>
+The initial node is pushed to the priority queue with an f-cost of 0, since g(start) = 0 and we're at the starting position.
+</Note>
+
+### Main Loop
+
+The algorithm processes nodes until it finds the goal or exhausts all possibilities:
+
+```python {2,3}
+while open_list:
+    # Extract the node with the lowest f-cost
+    current_f_cost, current_node = heapq.heappop(open_list)
+```
+
+The `heapq.heappop` operation ensures we always expand the most promising node (lowest f-cost = g + h).
+
+### Goal Check
+
+When the goal is reached, the algorithm reconstructs and returns the path:
+
+```python {2,3,4,5,6,7}
+if current_node == goal:
+    path = []  # Initialize a list for the route
+    while current_node:
+        path.append(current_node)  # Add node to route
+        current_node = came_from[current_node]  # Backtrack to previous node
+    return path[::-1], g_costs[goal]  # Return reversed path and total cost
+```
+
+**Path reconstruction process:**
+1. Start from the goal node
+2. Follow the `came_from` pointers backward to the start
+3. Reverse the path (since we built it backward)
+4. Return the path along with the total cost
+
+<Tip>
+The path is reversed using Python's slice notation `[::-1]` to present it from start to goal.
+</Tip>
+
+### Neighbor Processing
+
+For each neighbor of the current node, the algorithm evaluates whether a better path has been found:
+
+```python {2,3}
+for neighbor, distance in graph[current_node]:
+    # Calculate tentative g cost to the neighbor
+    tentative_g_cost = g_costs[current_node] + distance
+```
+
+The `tentative_g_cost` represents the total distance from start to the neighbor if we go through the current node.
+
+### Path Improvement Check
+
+```python {2,3,4,5,6,7,8}
+if neighbor not in g_costs or tentative_g_cost < g_costs[neighbor]:
+    # Update the g cost for this neighbor
+    g_costs[neighbor] = tentative_g_cost
+    # Calculate f cost (g + h) using the heuristic
+    f_cost = tentative_g_cost + heuristics[neighbor]
+    # Add the neighbor to the open list
+    heapq.heappush(open_list, (f_cost, neighbor))
+    # Record that we reached this neighbor from current node
+    came_from[neighbor] = current_node
+```
+
+**This conditional handles two cases:**
+1. **New node**: The neighbor hasn't been visited yet (`neighbor not in g_costs`)
+2. **Better path**: We found a shorter path to a previously visited neighbor
+
+<Note>
+**Critical algorithmic decision:** The f-cost calculation `f_cost = tentative_g_cost + heuristics[neighbor]` combines:
+- **g(n)**: Actual cost from start to neighbor (`tentative_g_cost`)
+- **h(n)**: Estimated cost from neighbor to goal (`heuristics[neighbor]`)
+
+This ensures A* explores paths that are both short so far and promising toward the goal.
+</Note>
+
+### Failure Case
+
+If no path exists, the function returns indicating failure:
+
+```python
+return None, float('inf')
+```
+
+</Steps>
+
+## Complete Function Reference
+
+The complete `a_star_search` function can be found in `astar_shortest_path_romania.py:39-79`.
+
+## Execution Example
+
+The algorithm is executed with:
+
+```python
+optimal_path, total_cost = a_star_search(romania_map, 'Arad', 'Bucharest', heuristics)
+```
+
+For the journey from Arad to Bucharest, this produces:
+- **Path**: Arad → Sibiu → Rimnicu Vilcea → Pitesti → Bucharest
+- **Total Cost**: 418 km
+
+## Complexity Analysis
+
+**Time Complexity**: O(b^d) where:
+- b = branching factor (average neighbors per node)
+- d = depth of the optimal solution
+
+**Space Complexity**: O(b^d) for storing nodes in the open list and tracking visited nodes
+
+<Tip>
+The efficiency of A* heavily depends on the quality of the heuristic. An admissible heuristic (never overestimates) guarantees optimality, while a consistent heuristic improves performance.
+</Tip>

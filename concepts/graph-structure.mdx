@@ -1,0 +1,275 @@
+---
+title: 'Graph Structure'
+description: 'Understanding the graph representation of the Romania road network'
+---
+
+## Graph Representation
+
+The Romania road map is represented as a **weighted, undirected graph** using a Python dictionary structure. This representation provides an intuitive and efficient way to model the network of cities and connecting roads.
+
+## Data Structure Format
+
+The graph is defined in `astar_shortest_path_romania.py:7-28` as:
+
+```python
+romania_map = {
+    'City': [('Neighbor1', distance1), ('Neighbor2', distance2), ...]
+}
+```
+
+### Structure Components
+
+- **Keys**: City names (strings representing nodes)
+- **Values**: Lists of tuples, where each tuple contains:
+  - A neighbor city (string)
+  - The road distance to that neighbor (integer, in kilometers)
+
+<Info>
+This adjacency list representation is efficient for sparse graphs where each node has relatively few connections, which is typical for road networks.
+</Info>
+
+## Complete Graph Definition
+
+Here is the full Romania map structure from the source code:
+
+```python
+romania_map = {
+    'Arad': [('Zerind', 75), ('Sibiu', 140), ('Timisoara', 118)],
+    'Zerind': [('Arad', 75), ('Oradea', 71)],
+    'Oradea': [('Zerind', 71), ('Sibiu', 151)],
+    'Sibiu': [('Arad', 140), ('Oradea', 151), ('Fagaras', 99), ('Rimnicu Vilcea', 80)],
+    'Timisoara': [('Arad', 118), ('Lugoj', 111)],
+    'Lugoj': [('Timisoara', 111), ('Mehadia', 70)],
+    'Mehadia': [('Lugoj', 70), ('Drobeta', 75)],
+    'Drobeta': [('Mehadia', 75), ('Craiova', 120)],
+    'Craiova': [('Drobeta', 120), ('Rimnicu Vilcea', 146), ('Pitesti', 138)],
+    'Rimnicu Vilcea': [('Sibiu', 80), ('Craiova', 146), ('Pitesti', 97)],
+    'Fagaras': [('Sibiu', 99), ('Bucharest', 211)],
+    'Pitesti': [('Rimnicu Vilcea', 97), ('Craiova', 138), ('Bucharest', 101)],
+    'Bucharest': [('Fagaras', 211), ('Pitesti', 101), ('Giurgiu', 90), ('Urziceni', 85)],
+    'Giurgiu': [('Bucharest', 90)],
+    'Urziceni': [('Bucharest', 85), ('Hirsova', 98), ('Vaslui', 142)],
+    'Hirsova': [('Urziceni', 98), ('Eforie', 86)],
+    'Eforie': [('Hirsova', 86)],
+    'Vaslui': [('Urziceni', 142), ('Iasi', 92)],
+    'Iasi': [('Vaslui', 92), ('Neamt', 87)],
+    'Neamt': [('Iasi', 87)],
+}
+```
+
+## Nodes (Cities)
+
+The graph contains **20 cities** (nodes) representing locations in Romania:
+
+### Western Region
+- Arad
+- Zerind
+- Oradea
+- Timisoara
+
+### Central Region
+- Sibiu
+- Rimnicu Vilcea
+- Fagaras
+
+### Southern Region
+- Lugoj
+- Mehadia
+- Drobeta
+- Craiova
+- Pitesti
+
+### Capital Region
+- **Bucharest** (goal node in most searches)
+- Giurgiu
+
+### Eastern Region
+- Urziceni
+- Hirsova
+- Eforie
+- Vaslui
+- Iasi
+- Neamt
+
+## Edges (Roads)
+
+Edges represent bidirectional roads between cities with associated distances in kilometers.
+
+### Example: Arad's Connections
+
+```python
+'Arad': [('Zerind', 75), ('Sibiu', 140), ('Timisoara', 118)]
+```
+
+This indicates that from Arad, you can travel to:
+- **Zerind**: 75 km
+- **Sibiu**: 140 km
+- **Timisoara**: 118 km
+
+<Note>
+Since the graph is undirected, each connection appears twice (once for each city). For example, if Arad lists Zerind at 75 km, Zerind also lists Arad at 75 km.
+</Note>
+
+### Graph Properties
+
+- **Type**: Weighted, undirected graph
+- **Nodes**: 20 cities
+- **Edges**: Variable per node (ranging from 1 to 4 connections)
+- **Weights**: Positive integers representing kilometers
+- **Connectivity**: All nodes are connected (no isolated subgraphs)
+
+## Key Connection Examples
+
+### Hub Cities (High Connectivity)
+
+Some cities serve as major hubs with multiple connections:
+
+```python
+# Sibiu: 4 connections (major hub)
+'Sibiu': [('Arad', 140), ('Oradea', 151), ('Fagaras', 99), ('Rimnicu Vilcea', 80)]
+
+# Bucharest: 4 connections (capital and goal)
+'Bucharest': [('Fagaras', 211), ('Pitesti', 101), ('Giurgiu', 90), ('Urziceni', 85)]
+
+# Craiova: 3 connections
+'Craiova': [('Drobeta', 120), ('Rimnicu Vilcea', 146), ('Pitesti', 138)]
+```
+
+### Leaf Cities (Single Connection)
+
+Some cities are endpoints with only one connection:
+
+```python
+# Giurgiu: Only connected to Bucharest
+'Giurgiu': [('Bucharest', 90)]
+
+# Eforie: Only connected to Hirsova
+'Eforie': [('Hirsova', 86)]
+
+# Neamt: Only connected to Iasi
+'Neamt': [('Iasi', 87)]
+```
+
+## Accessing the Graph
+
+The graph structure is designed for efficient neighbor lookup during the A* search (astar_shortest_path_romania.py:64):
+
+```python
+for neighbor, distance in graph[current_node]:
+    tentative_g_cost = g_costs[current_node] + distance
+    # ... continue with neighbor processing
+```
+
+### Example Traversal
+
+```python
+# Get all neighbors of Arad
+neighbors = romania_map['Arad']
+# Returns: [('Zerind', 75), ('Sibiu', 140), ('Timisoara', 118)]
+
+# Iterate through neighbors
+for neighbor_city, road_distance in romania_map['Arad']:
+    print(f"From Arad to {neighbor_city}: {road_distance} km")
+# Output:
+# From Arad to Zerind: 75 km
+# From Arad to Sibiu: 140 km
+# From Arad to Timisoara: 118 km
+```
+
+## Distance Statistics
+
+### Shortest Roads
+- Zerind ↔ Oradea: 71 km
+- Lugoj ↔ Mehadia: 70 km
+- Arad ↔ Zerind: 75 km
+- Mehadia ↔ Drobeta: 75 km
+
+### Longest Roads
+- Fagaras ↔ Bucharest: 211 km
+- Oradea ↔ Sibiu: 151 km
+- Rimnicu Vilcea ↔ Craiova: 146 km
+- Urziceni ↔ Vaslui: 142 km
+
+### Average Road Distance
+Approximately 110 km per connection
+
+## Graph Visualization
+
+The implementation includes visualization using NetworkX (astar_shortest_path_romania.py:89-114):
+
+```python
+def draw_graph(graph, path=None):
+    G = nx.Graph()
+    
+    # Add nodes and edges from the dictionary
+    for city in graph:
+        for neighbor, distance in graph[city]:
+            G.add_edge(city, neighbor, weight=distance)
+    
+    # Generate layout and draw
+    pos = nx.spring_layout(G)
+    nx.draw(G, pos, with_labels=True, node_color='lightblue', 
+            node_size=3000, font_size=10, font_weight='bold')
+    
+    # Highlight the optimal path if provided
+    if path:
+        path_edges = list(zip(path, path[1:]))
+        nx.draw_networkx_edges(G, pos, edgelist=path_edges, 
+                               edge_color='r', width=2)
+```
+
+<Accordion title="Why use dictionary representation instead of an adjacency matrix?">
+The dictionary (adjacency list) representation offers several advantages for this use case:
+
+1. **Space Efficiency**: Only stores existing edges
+   - Dictionary: O(V + E) space
+   - Matrix: O(V²) space (wastes space for non-existent edges)
+
+2. **Iteration Efficiency**: Easy to iterate over neighbors
+   - Directly access `graph[city]` to get all connections
+   - No need to scan entire row looking for edges
+
+3. **Dynamic Structure**: Easy to add/remove cities and roads
+   - Simply update dictionary keys and values
+   - Matrix requires resizing for new nodes
+
+4. **Readable Code**: More intuitive for geographic data
+   - Natural representation: "Arad connects to Sibiu at 140 km"
+   - Matches mental model of road networks
+
+For dense graphs where most nodes connect to most others, matrices can be more efficient. But for sparse graphs like road networks (where each city connects to only a few others), dictionaries are superior.
+</Accordion>
+
+## Bidirectional Consistency
+
+The graph maintains bidirectional consistency—each road is represented in both directions:
+
+```python
+# Arad → Sibiu: 140 km
+'Arad': [('Sibiu', 140), ...]
+
+# Sibiu → Arad: 140 km (same distance)
+'Sibiu': [('Arad', 140), ...]
+```
+
+<Info>
+This bidirectional representation is essential for undirected graphs and ensures the A* algorithm can traverse roads in either direction with the same cost.
+</Info>
+
+## Practical Usage
+
+The graph is passed to the A* search function (astar_shortest_path_romania.py:82):
+
+```python
+optimal_path, total_cost = a_star_search(romania_map, 'Arad', 'Bucharest', heuristics)
+```
+
+The algorithm uses this structure to:
+1. Look up neighbors of the current node
+2. Retrieve edge weights (distances)
+3. Calculate path costs
+4. Find the optimal route through the network
+
+The result for Arad → Bucharest:
+- **Path**: Arad → Sibiu → Rimnicu Vilcea → Pitesti → Bucharest
+- **Total Distance**: 418 km

@@ -1,0 +1,177 @@
+---
+title: "Custom Graphs"
+description: "Create your own custom graphs and heuristics for A* pathfinding"
+---
+
+## Creating Custom Graphs
+
+While the Romania map is great for learning, you can easily create your own custom graphs for different pathfinding scenarios.
+
+## Graph Structure
+
+Graphs are represented as dictionaries where:
+- **Keys**: Node names (strings)
+- **Values**: Lists of tuples `(neighbor, distance)` representing connections
+
+### Romania Map Example
+
+Here's how the Romania map is structured:
+
+```python
+romania_map = {
+    'Arad': [('Zerind', 75), ('Sibiu', 140), ('Timisoara', 118)],
+    'Zerind': [('Arad', 75), ('Oradea', 71)],
+    'Oradea': [('Zerind', 71), ('Sibiu', 151)],
+    'Sibiu': [('Arad', 140), ('Oradea', 151), ('Fagaras', 99), ('Rimnicu Vilcea', 80)],
+    # ... more cities
+}
+```
+
+<Note>
+Each connection must be defined **bidirectionally**. If city A connects to city B with distance 100, then B must also list A with the same distance.
+</Note>
+
+## Creating a Custom City Network
+
+Let's create a custom graph for a delivery network:
+
+```python
+import heapq
+
+# Define a custom delivery network graph
+delivery_network = {
+    'Warehouse': [('Store_A', 5), ('Store_B', 8), ('Distribution_Center', 3)],
+    'Store_A': [('Warehouse', 5), ('Store_C', 4)],
+    'Store_B': [('Warehouse', 8), ('Store_C', 6), ('Store_D', 7)],
+    'Store_C': [('Store_A', 4), ('Store_B', 6), ('Distribution_Center', 2)],
+    'Store_D': [('Store_B', 7), ('Distribution_Center', 5)],
+    'Distribution_Center': [('Warehouse', 3), ('Store_C', 2), ('Store_D', 5)]
+}
+
+# Define heuristics (straight-line distance estimates to Distribution_Center)
+custom_heuristics = {
+    'Warehouse': 3,
+    'Store_A': 6,
+    'Store_B': 10,
+    'Store_C': 2,
+    'Store_D': 5,
+    'Distribution_Center': 0  # Goal node always has heuristic of 0
+}
+```
+
+<Tip>
+The goal node should always have a heuristic value of **0** since there's no distance to estimate—you're already there!
+</Tip>
+
+## Complete Working Example
+
+Here's a complete example using a custom graph:
+
+<Steps>
+
+<Step title="Define your graph structure">
+```python
+# Create a simple campus navigation graph
+campus_map = {
+    'Library': [('Main_Hall', 100), ('Science_Building', 150)],
+    'Main_Hall': [('Library', 100), ('Cafeteria', 80), ('Science_Building', 120)],
+    'Science_Building': [('Library', 150), ('Main_Hall', 120), ('Gym', 90)],
+    'Cafeteria': [('Main_Hall', 80), ('Gym', 110), ('Dorms', 200)],
+    'Gym': [('Science_Building', 90), ('Cafeteria', 110), ('Dorms', 140)],
+    'Dorms': [('Cafeteria', 200), ('Gym', 140)]
+}
+```
+</Step>
+
+<Step title="Define heuristics for your goal">
+```python
+# Heuristics: estimated distances to Dorms (in meters)
+campus_heuristics = {
+    'Library': 350,
+    'Main_Hall': 280,
+    'Science_Building': 230,
+    'Cafeteria': 200,
+    'Gym': 140,
+    'Dorms': 0
+}
+```
+</Step>
+
+<Step title="Use the A* algorithm">
+```python
+from astar_shortest_path_romania import a_star_search
+
+# Find the shortest path from Library to Dorms
+path, distance = a_star_search(campus_map, 'Library', 'Dorms', campus_heuristics)
+
+print(f"Best route: {' -> '.join(path)}")
+print(f"Total distance: {distance} meters")
+```
+</Step>
+
+</Steps>
+
+### Expected Output
+
+```
+Best route: Library -> Main_Hall -> Cafeteria -> Dorms
+Total distance: 380 meters
+```
+
+## Designing Good Heuristics
+
+For A* to work optimally, heuristics must be **admissible** (never overestimate the actual distance).
+
+<CodeGroup>
+
+```python Admissible (Good)
+# Straight-line distances - always <= actual path distance
+heuristics = {
+    'City_A': 100,  # Actual shortest path is 120
+    'City_B': 50,   # Actual shortest path is 75
+    'Goal': 0
+}
+```
+
+```python Non-Admissible (Bad)
+# Overestimated distances - can cause suboptimal paths
+heuristics = {
+    'City_A': 150,  # Actual shortest path is only 120 ❌
+    'City_B': 80,   # Actual shortest path is only 75 ❌
+    'Goal': 0
+}
+```
+
+</CodeGroup>
+
+<Note>
+**Why admissibility matters**: If a heuristic overestimates, A* might skip exploring the optimal path because it incorrectly thinks it's too expensive.
+</Note>
+
+## Advanced: Weighted Graphs
+
+You can also add different types of costs to your edges:
+
+```python
+# Graph with time (minutes) instead of distance
+time_graph = {
+    'Home': [('Office', 25), ('Gym', 15)],
+    'Office': [('Home', 25), ('Store', 10), ('Gym', 20)],
+    'Gym': [('Home', 15), ('Office', 20), ('Store', 8)],
+    'Store': [('Office', 10), ('Gym', 8)]
+}
+
+time_heuristics = {
+    'Home': 20,
+    'Office': 10,
+    'Gym': 8,
+    'Store': 0  # Our destination
+}
+
+path, time = a_star_search(time_graph, 'Home', 'Store', time_heuristics)
+print(f"Fastest route: {' -> '.join(path)} ({time} minutes)")
+```
+
+<Tip>
+A* works with any consistent cost metric—distance, time, fuel consumption, or even monetary cost!
+</Tip>

@@ -1,0 +1,94 @@
+---
+title: "Basic Usage"
+description: "Learn how to use the A* algorithm to find the shortest path between cities in Romania"
+---
+
+## Getting Started
+
+The most basic use case is finding the shortest path from Arad to Bucharest using the pre-configured Romania map and heuristics.
+
+## Complete Example
+
+Here's a complete example that demonstrates how to use the A* pathfinding algorithm:
+
+```python
+import heapq
+import networkx as nx
+import matplotlib.pyplot as plt
+from astar_shortest_path_romania import romania_map, heuristics, a_star_search, draw_graph
+
+# Find the optimal path from Arad to Bucharest
+optimal_path, total_cost = a_star_search(romania_map, 'Arad', 'Bucharest', heuristics)
+
+# Print the results
+print("Optimal path from Arad to Bucharest:", " -> ".join(optimal_path))
+print("Total distance:", total_cost, "km")
+
+# Visualize the graph with the optimal path highlighted
+draw_graph(romania_map, optimal_path)
+```
+
+## Expected Output
+
+When you run this code, you'll see:
+
+```
+Optimal path from Arad to Bucharest: Arad -> Sibiu -> Rimnicu Vilcea -> Pitesti -> Bucharest
+Total distance: 418 km
+```
+
+<Note>
+The algorithm finds the path **Arad → Sibiu → Rimnicu Vilcea → Pitesti → Bucharest** with a total distance of **418 km**, which is the shortest possible route.
+</Note>
+
+## Understanding the Components
+
+<Steps>
+
+<Step title="Import the necessary components">
+The algorithm requires the graph structure (`romania_map`), heuristic estimates (`heuristics`), and the search function (`a_star_search`).
+</Step>
+
+<Step title="Call the A* search function">
+Pass the graph, start city, goal city, and heuristics to `a_star_search()`. It returns a tuple of `(path, cost)`.
+
+```python
+optimal_path, total_cost = a_star_search(romania_map, 'Arad', 'Bucharest', heuristics)
+```
+</Step>
+
+<Step title="Use the results">
+The function returns:
+- `optimal_path`: A list of city names representing the route
+- `total_cost`: The total distance in kilometers
+</Step>
+
+<Step title="Visualize the path (optional)">
+Use the `draw_graph()` function to see a visual representation of the Romania map with your path highlighted in red.
+
+```python
+draw_graph(romania_map, optimal_path)
+```
+</Step>
+
+</Steps>
+
+## Visualization
+
+The `draw_graph()` function creates an interactive graph where:
+- **Nodes** represent cities (shown in light blue)
+- **Edges** represent roads with distances labeled
+- **Red edges** highlight the optimal path found by A*
+
+<Tip>
+The graph layout is generated automatically using a spring layout algorithm, so node positions may vary between runs but the connections remain the same.
+</Tip>
+
+## What Happens Behind the Scenes
+
+The A* algorithm uses:
+1. **g(n)**: The actual cost from the start city to the current city
+2. **h(n)**: The heuristic estimate from the current city to Bucharest
+3. **f(n) = g(n) + h(n)**: The total estimated cost
+
+The algorithm always explores the city with the lowest f(n) value first, ensuring an optimal solution when using admissible heuristics.

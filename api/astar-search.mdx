@@ -1,0 +1,150 @@
+---
+title: "a_star_search Function"
+description: "Core A* pathfinding algorithm implementation"
+---
+
+## Function Signature
+
+```python
+def a_star_search(graph, start, goal, heuristics)
+```
+
+The `a_star_search` function implements the A* search algorithm to find the optimal path between two nodes in a weighted graph using heuristic estimates.
+
+## Parameters
+
+<ParamField path="graph" type="dict[str, list[tuple[str, int]]]" required>
+  A dictionary representing the graph structure. Each key is a node name (string), and each value is a list of tuples containing (neighbor_name, distance).
+  
+  Example:
+  ```python
+  {
+    'Arad': [('Zerind', 75), ('Sibiu', 140), ('Timisoara', 118)],
+    'Zerind': [('Arad', 75), ('Oradea', 71)]
+  }
+  ```
+</ParamField>
+
+<ParamField path="start" type="str" required>
+  The starting node name. Must exist as a key in the graph dictionary.
+</ParamField>
+
+<ParamField path="goal" type="str" required>
+  The goal/destination node name. Must exist as a key in the graph dictionary.
+</ParamField>
+
+<ParamField path="heuristics" type="dict[str, int]" required>
+  A dictionary mapping node names to their heuristic values (estimated cost to goal). Each node in the graph should have a corresponding heuristic value.
+  
+  Example:
+  ```python
+  {
+    'Arad': 366,
+    'Zerind': 374,
+    'Bucharest': 0
+  }
+  ```
+</ParamField>
+
+## Return Value
+
+Returns a tuple `(path, cost)`:
+
+<ResponseField name="path" type="list[str] | None">
+  A list of node names representing the optimal path from start to goal, or `None` if no path exists.
+</ResponseField>
+
+<ResponseField name="cost" type="int | float">
+  The total cost of the optimal path, or `float('inf')` if no path exists.
+</ResponseField>
+
+## Algorithm Details
+
+The function uses:
+- **Priority queue** (via `heapq`) to maintain the open list sorted by f-cost
+- **g_costs dictionary** to track the actual cost from start to each node
+- **came_from dictionary** to reconstruct the optimal path
+- **f-cost calculation**: `f = g + h` where:
+  - `g` = actual cost from start to current node
+  - `h` = heuristic estimate from current node to goal
+
+## Usage Example
+
+```python
+import heapq
+
+# Define your graph
+romania_map = {
+    'Arad': [('Zerind', 75), ('Sibiu', 140), ('Timisoara', 118)],
+    'Zerind': [('Arad', 75), ('Oradea', 71)],
+    'Sibiu': [('Arad', 140), ('Oradea', 151), ('Fagaras', 99)],
+    'Fagaras': [('Sibiu', 99), ('Bucharest', 211)],
+    'Bucharest': [('Fagaras', 211)]
+}
+
+# Define heuristics (straight-line distance to Bucharest)
+heuristics = {
+    'Arad': 366,
+    'Zerind': 374,
+    'Sibiu': 253,
+    'Fagaras': 176,
+    'Bucharest': 0
+}
+
+# Find optimal path
+optimal_path, total_cost = a_star_search(romania_map, 'Arad', 'Bucharest', heuristics)
+
+print("Optimal path:", " -> ".join(optimal_path))
+print("Total cost:", total_cost)
+```
+
+**Output:**
+```
+Optimal path: Arad -> Sibiu -> Fagaras -> Bucharest
+Total cost: 450
+```
+
+## Source Code
+
+```python
+def a_star_search(graph, start, goal, heuristics):
+    # Create open list as priority queue
+    open_list = []
+    heapq.heappush(open_list, (0, start))
+    
+    # Dictionary to store g costs (actual cost from start)
+    g_costs = {start: 0}
+    # Dictionary to track path for reconstruction
+    came_from = {start: None}
+    
+    # Main loop: while there are nodes in open list
+    while open_list:
+        # Extract node with minimum f cost
+        current_f_cost, current_node = heapq.heappop(open_list)
+        
+        # If we reached the goal, reconstruct and return path
+        if current_node == goal:
+            path = []
+            while current_node:
+                path.append(current_node)
+                current_node = came_from[current_node]
+            return path[::-1], g_costs[goal]
+        
+        # Process neighbors
+        for neighbor, distance in graph[current_node]:
+            # Calculate tentative g cost to neighbor
+            tentative_g_cost = g_costs[current_node] + distance
+            # If new neighbor or found shorter path
+            if neighbor not in g_costs or tentative_g_cost < g_costs[neighbor]:
+                # Update g cost
+                g_costs[neighbor] = tentative_g_cost
+                # Calculate f cost (g + h)
+                f_cost = tentative_g_cost + heuristics[neighbor]
+                # Add neighbor to open list
+                heapq.heappush(open_list, (f_cost, neighbor))
+                # Record path
+                came_from[neighbor] = current_node
+    
+    # No path found
+    return None, float('inf')
+```

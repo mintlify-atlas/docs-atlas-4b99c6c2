@@ -1,97 +1,72 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: "A* Romania Pathfinder"
+description: "Python implementation of the A* pathfinding algorithm for finding optimal routes in Romania's road network"
 ---
 
-## Setting up
+# Welcome to A* Romania Pathfinder
 
-Get your documentation site up and running in minutes.
+A Python implementation of the A* pathfinding algorithm that finds optimal routes between cities in Romania's road network. This project demonstrates how informed search algorithms can efficiently solve pathfinding problems using heuristics and priority queues.
 
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
-
-## Make it yours
-
-Design a docs site that looks great and empowers your users.
-
-<Columns cols={2}>
+<CardGroup cols={2}>
   <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
+    title="Quick Start"
+    icon="rocket"
+    href="/quickstart"
   >
-    Edit your docs locally and preview them in real time.
+    Get up and running with A* pathfinding in minutes
   </Card>
   <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
+    title="Algorithm Overview"
+    icon="brain"
+    href="/concepts/algorithm"
   >
-    Customize the design and colors of your site to match your brand.
-  </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+    Learn how the A* algorithm works
   </Card>
   <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
-  </Card>
-</Columns>
-
-## Create beautiful pages
-
-Everything you need to create world-class documentation.
-
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
+    title="API Reference"
     icon="code"
-    href="/essentials/code"
+    href="/api/astar-search"
   >
-    Add sample code to demonstrate how to use your product.
+    Explore the complete API documentation
   </Card>
   <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
+    title="Examples"
+    icon="lightbulb"
+    href="/examples/basic-usage"
   >
-    Display images and other media.
+    See real-world usage examples
   </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+</CardGroup>
 
-## Need inspiration?
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="A* Algorithm" icon="route">
+    Efficient pathfinding using priority queue-based implementation with admissible heuristics
+  </Card>
+  <Card title="Graph Representation" icon="diagram-project">
+    Romania's road network modeled as a weighted graph with cities as nodes
+  </Card>
+  <Card title="Heuristic Functions" icon="compass">
+    Straight-line distance heuristics for optimal search guidance
+  </Card>
+  <Card title="Visualization" icon="chart-network">
+    Beautiful graph visualization with NetworkX and Matplotlib showing optimal routes
+  </Card>
+</CardGroup>
+
+## Example Result
+
+The algorithm finds the optimal route from Arad to Bucharest:
+
+**Arad → Sibiu → Rimnicu Vilcea → Pitesti → Bucharest**
+
+Total distance: **418 km**
 
 <Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
+  title="View the implementation"
+  icon="github"
+  href="https://github.com/CamachoFranklin/astar-romania-pathfinder"
 >
-  Browse our showcase of exceptional documentation sites.
+  Explore the source code on GitHub
 </Card>

@@ -1,0 +1,222 @@
+---
+title: "Visualization"
+description: "Graph rendering and path highlighting with NetworkX and Matplotlib"
+---
+
+## Overview
+
+The `draw_graph` function provides visual representation of the Romania road network and highlights the optimal path found by the A* algorithm. This function is located in `astar_shortest_path_romania.py:89`.
+
+## Function Signature
+
+```python
+def draw_graph(graph, path=None):
+```
+
+**Parameters:**
+- `graph`: The Romania map dictionary with city connections
+- `path`: Optional list of cities representing the optimal route to highlight
+
+## Visualization Components
+
+<Steps>
+
+### Graph Creation
+
+The function starts by creating an empty NetworkX graph object:
+
+```python {2}
+# Create an empty graph
+G = nx.Graph()  # Creates a NetworkX graph object
+```
+
+<Note>
+`nx.Graph()` creates an undirected graph, which is appropriate for the Romania road network since roads can be traveled in both directions.
+</Note>
+
+### Adding Nodes and Edges
+
+The function iterates through the Romania map to populate the graph:
+
+```python {2,3,4}
+# Add nodes and edges to the graph based on romania_map connections
+for city in graph:
+    for neighbor, distance in graph[city]:
+        G.add_edge(city, neighbor, weight=distance)  # Add edges with weights
+```
+
+**This process:**
+1. Iterates through each city in the graph
+2. For each neighbor connection, adds an edge with the distance as weight
+3. NetworkX automatically handles duplicate edges (since the graph is undirected)
+
+<Tip>
+The `weight` attribute stores the road distance, which will be displayed as edge labels in the visualization.
+</Tip>
+
+### Node Positioning with Spring Layout
+
+NetworkX's spring layout algorithm positions nodes aesthetically:
+
+```python {2}
+# Generate node positions automatically
+pos = nx.spring_layout(G)  # Position nodes for the graph
+```
+
+**Spring layout characteristics:**
+- Uses a force-directed algorithm
+- Treats edges as springs that pull connected nodes together
+- Applies repulsive forces between all nodes
+- Results in a balanced, visually pleasing layout
+- Positions are deterministic for the same graph structure
+
+<Note>
+**Why spring layout?** This algorithm automatically creates aesthetically pleasing graphs by:
+- Minimizing edge crossings
+- Distributing nodes evenly
+- Keeping connected nodes closer together
+- No manual coordinate specification needed
+</Note>
+
+### Base Graph Rendering
+
+The function draws the complete road network:
+
+```python {2}
+# Draw the complete graph
+nx.draw(G, pos, with_labels=True, node_color='lightblue', 
+        node_size=3000, font_size=10, font_weight='bold', 
+        edge_color='gray')
+```
+
+**Styling parameters:**
+- `with_labels=True`: Display city names on nodes
+- `node_color='lightblue'`: Light blue background for all cities
+- `node_size=3000`: Large enough nodes to accommodate city names
+- `font_size=10`: Readable text size
+- `font_weight='bold'`: Bold city names for clarity
+- `edge_color='gray'`: Subtle gray for roads
+
+### Edge Labels (Distances)
+
+Distance labels are added to each road:
+
+```python {2,3}
+# Add weight (distance) labels to edges
+labels = nx.get_edge_attributes(G, 'weight')
+nx.draw_networkx_edge_labels(G, pos, edge_labels=labels)
+```
+
+**Process:**
+1. `nx.get_edge_attributes(G, 'weight')` extracts all edge weights into a dictionary
+2. `nx.draw_networkx_edge_labels()` positions and renders the distance values along each edge
+
+<Tip>
+Edge labels display the actual road distances in kilometers, making it easy to verify the path costs visually.
+</Tip>
+
+### Path Highlighting
+
+If an optimal path is provided, it's highlighted in red:
+
+```python {2,3,4}
+# If a path (optimal route) is provided, highlight it in red
+if path:
+    path_edges = list(zip(path, path[1:]))  # Create pairs of consecutive cities
+    nx.draw_networkx_edges(G, pos, edgelist=path_edges, 
+                          edge_color='r', width=2)  # Draw highlighted path
+```
+
+**Path edge creation:**
+- `zip(path, path[1:])` creates consecutive pairs from the path list
+- Example: `['Arad', 'Sibiu', 'Pitesti']` → `[('Arad', 'Sibiu'), ('Sibiu', 'Pitesti')]`
+- These pairs represent the edges to highlight
+
+**Highlighting style:**
+- `edge_color='r'`: Red color for high visibility
+- `width=2`: Thicker lines to stand out from gray edges
+
+<Note>
+The red path overlay is drawn on top of the existing gray edges, making the optimal route clearly visible while maintaining the context of the complete network.
+</Note>
+
+### Display
+
+Finally, the visualization is rendered:
+
+```python {2}
+# Show the graph
+plt.show()
+```
+
+This opens a Matplotlib window displaying the interactive graph visualization.
+
+</Steps>
+
+## Usage Example
+
+After finding the optimal path with A*, visualize it:
+
+```python
+# Find the optimal path
+optimal_path, total_cost = a_star_search(romania_map, 'Arad', 'Bucharest', heuristics)
+
+# Visualize the graph with the highlighted path
+draw_graph(romania_map, optimal_path)
+```
+
+## Visualization Output
+
+The generated graph displays:
+
+- **All 18 cities** as labeled light blue nodes
+- **All road connections** as gray edges with distance labels
+- **The optimal path** from Arad to Bucharest highlighted in red
+- **Interactive window** allowing zoom and pan (via Matplotlib)
+
+## Libraries Used
+
+### NetworkX
+
+```python
+import networkx as nx  # Library for working with graphs
+```
+
+**NetworkX provides:**
+- Graph data structures and algorithms
+- Layout algorithms (spring_layout)
+- Drawing primitives for visualization
+- Edge attribute management
+
+### Matplotlib
+
+```python
+import matplotlib.pyplot as plt  # Library for plotting
+```
+
+**Matplotlib handles:**
+- Rendering the visual output
+- Interactive window management
+- Display of the completed visualization
+
+<Tip>
+The combination of NetworkX and Matplotlib is ideal for graph visualization because NetworkX handles graph structure and layout while Matplotlib provides powerful rendering capabilities.
+</Tip>
+
+## Complete Function Reference
+
+The complete `draw_graph` function is available in `astar_shortest_path_romania.py:89-114`.
+
+## Customization Options
+
+You can modify the visualization by adjusting:
+
+- **Node colors**: Change `node_color` parameter
+- **Node sizes**: Adjust `node_size` for different displays
+- **Path color**: Modify `edge_color='r'` to any Matplotlib color
+- **Layout algorithm**: Try `nx.circular_layout(G)` or `nx.kamada_kawai_layout(G)` instead of spring_layout
+- **Font properties**: Customize `font_size` and `font_weight`
+
+<Note>
+For larger graphs, consider increasing `node_size` and adjusting the figure size with `plt.figure(figsize=(12, 8))` before calling `draw_graph()`.
+</Note>

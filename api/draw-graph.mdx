@@ -1,0 +1,153 @@
+---
+title: "draw_graph Function"
+description: "Visualize graphs and optimal paths using NetworkX and Matplotlib"
+---
+
+## Function Signature
+
+```python
+def draw_graph(graph, path=None)
+```
+
+The `draw_graph` function creates a visual representation of a graph using NetworkX and Matplotlib, with optional highlighting of a specific path.
+
+## Parameters
+
+<ParamField path="graph" type="dict[str, list[tuple[str, int]]]" required>
+  A dictionary representing the graph structure. Each key is a node name (string), and each value is a list of tuples containing (neighbor_name, distance).
+  
+  This should match the same format used by the `a_star_search` function.
+</ParamField>
+
+<ParamField path="path" type="list[str] | None" default="None">
+  Optional. A list of node names representing a path to highlight in red on the graph. Typically this is the optimal path returned by `a_star_search`.
+  
+  If `None`, only the graph structure is displayed without any highlighted path.
+</ParamField>
+
+## Behavior
+
+The function performs the following operations:
+
+1. **Creates a NetworkX Graph** - Converts the dictionary graph structure into a NetworkX graph object
+2. **Adds edges with weights** - Each connection between nodes is added with its distance as a weight
+3. **Generates layout** - Uses spring layout algorithm for automatic node positioning
+4. **Draws the graph** - Renders nodes (light blue), edges (gray), and labels with node names
+5. **Displays edge weights** - Shows the distance values on each edge
+6. **Highlights path** (optional) - If a path is provided, draws those edges in red with increased width
+7. **Shows visualization** - Opens a Matplotlib window displaying the graph
+
+## Visualization Details
+
+- **Node color**: Light blue
+- **Node size**: 3000
+- **Font size**: 10 (bold)
+- **Edge color**: Gray (default), Red (highlighted path)
+- **Path edge width**: 2 (thicker than regular edges)
+- **Layout**: Spring layout (force-directed)
+
+## Usage Examples
+
+### Basic Graph Visualization
+
+```python
+import networkx as nx
+import matplotlib.pyplot as plt
+
+# Define a simple graph
+graph = {
+    'Arad': [('Zerind', 75), ('Sibiu', 140)],
+    'Zerind': [('Arad', 75), ('Oradea', 71)],
+    'Sibiu': [('Arad', 140), ('Oradea', 151)],
+    'Oradea': [('Zerind', 71), ('Sibiu', 151)]
+}
+
+# Visualize the graph without highlighting any path
+draw_graph(graph)
+```
+
+### Visualizing with Optimal Path
+
+```python
+import heapq
+import networkx as nx
+import matplotlib.pyplot as plt
+
+# Define the Romania map
+romania_map = {
+    'Arad': [('Zerind', 75), ('Sibiu', 140), ('Timisoara', 118)],
+    'Sibiu': [('Arad', 140), ('Fagaras', 99), ('Rimnicu Vilcea', 80)],
+    'Fagaras': [('Sibiu', 99), ('Bucharest', 211)],
+    'Bucharest': [('Fagaras', 211), ('Pitesti', 101)]
+}
+
+heuristics = {
+    'Arad': 366,
+    'Sibiu': 253,
+    'Fagaras': 176,
+    'Bucharest': 0
+}
+
+# Find optimal path using A* algorithm
+optimal_path, total_cost = a_star_search(romania_map, 'Arad', 'Bucharest', heuristics)
+
+print(f"Path: {' -> '.join(optimal_path)}")
+print(f"Cost: {total_cost}")
+
+# Visualize the graph with the optimal path highlighted in red
+draw_graph(romania_map, optimal_path)
+```
+
+## Dependencies
+
+This function requires the following libraries:
+
+```python
+import networkx as nx
+import matplotlib.pyplot as plt
+```
+
+Install them using:
+```bash
+pip install networkx matplotlib
+```
+
+## Source Code
+
+```python
+def draw_graph(graph, path=None):
+    # Create empty graph
+    G = nx.Graph()
+    
+    # Add nodes and edges to graph from romania_map
+    for city in graph:
+        for neighbor, distance in graph[city]:
+            G.add_edge(city, neighbor, weight=distance)
+    
+    # Generate node positions automatically
+    pos = nx.spring_layout(G)
+
+    # Draw the complete graph
+    nx.draw(G, pos, with_labels=True, node_color='lightblue', 
+            node_size=3000, font_size=10, font_weight='bold', 
+            edge_color='gray')
+    
+    # Add weight labels on edges
+    labels = nx.get_edge_attributes(G, 'weight')
+    nx.draw_networkx_edge_labels(G, pos, edge_labels=labels)
+
+    # If path is provided, highlight it in red
+    if path:
+        path_edges = list(zip(path, path[1:]))
+        nx.draw_networkx_edges(G, pos, edgelist=path_edges, 
+                              edge_color='r', width=2)
+
+    # Show the graph
+    plt.show()
+```
+
+## Notes
+
+- The spring layout algorithm produces a force-directed graph layout. Node positions may vary slightly between runs.
+- The visualization opens in a blocking Matplotlib window. Close the window to continue program execution.
+- For large graphs, consider adjusting `node_size` and `font_size` parameters for better readability.
