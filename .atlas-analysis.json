@@ -1,0 +1,64 @@
+{
+  "projectType": "ai-ml",
+  "projectName": "A* Romania Pathfinder",
+  "projectDescription": "Python implementation of the A* pathfinding algorithm for finding optimal routes in Romania's road network",
+  "theme": "palm",
+  "primaryColor": "#E63946",
+  "lightColor": "#F1FAEE",
+  "darkColor": "#1D3557",
+  "navigation": {
+    "groups": [
+      {
+        "group": "Get Started",
+        "pages": [
+          "introduction",
+          "quickstart"
+        ]
+      },
+      {
+        "group": "Core Concepts",
+        "pages": [
+          "concepts/algorithm",
+          "concepts/heuristics",
+          "concepts/graph-structure"
+        ]
+      },
+      {
+        "group": "Implementation",
+        "pages": [
+          "implementation/code-walkthrough",
+          "implementation/visualization"
+        ]
+      },
+      {
+        "group": "API Reference",
+        "pages": [
+          "api/astar-search",
+          "api/draw-graph",
+          "api/data-structures"
+        ]
+      },
+      {
+        "group": "Examples",
+        "pages": [
+          "examples/basic-usage",
+          "examples/custom-graphs",
+          "examples/different-routes"
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "A* pathfinding algorithm implementation with priority queue",
+    "Graph representation of Romania's road network",
+    "Admissible heuristic functions for efficient search",
+    "Network visualization with NetworkX and Matplotlib",
+    "Optimal route highlighting in graph visualization"
+  ],
+  "publicApiSurface": [
+    "a_star_search(graph, start, goal, heuristics)",
+    "draw_graph(graph, path=None)",
+    "romania_map dictionary",
+    "heuristics dictionary"
+  ]
+}
